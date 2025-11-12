@@ -1,0 +1,38 @@
+{
+    "name": "otwsystems/wp-oidc-login",
+    "description": "WordPress plugin for SSO via OIDC with optional permission mapping",
+    "version": "1.0.0",
+    "license": "AGPL-3.0-or-later",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "authentication",
+        "authorization",
+        "login",
+        "auth",
+        "oauth",
+        "oidc",
+        "openid",
+        "secure"
+    ],
+    "autoload": {
+        "psr-4": {
+            "OTWSystems\\WpOidcLogin\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Brian Austin",
+            "email": "brianaustin@transformativeworks.org"
+        }
+    ],
+    "prefer-stable": true,
+    "require": {
+        "php": "^8.2"
+    },
+    "require-dev": {
+        "lkrms/pretty-php": "^0.4.94"
+    },
+    "scripts": {
+        "style": "@php vendor/bin/pretty-php ."
+    }
+}

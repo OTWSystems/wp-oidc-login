@@ -1,0 +1,25 @@
+services:
+  db:
+    image: mariadb:12.0.2
+    environment:
+      MARIADB_DATABASE: development
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress
+      MARIADB_RANDOM_ROOT_PASSWORD: 1
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:6.8.3
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: development
+    volumes:
+      - ../../wp-oidc-login:/var/www/html/wp-content/plugins/wp-oidc-login:cached
+
+volumes:
+  mariadb-data:
