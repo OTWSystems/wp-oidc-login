@@ -27,12 +27,13 @@
     ],
     "prefer-stable": true,
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "jumbojett/openid-connect-php": "^1.0"
     },
     "require-dev": {
         "lkrms/pretty-php": "^0.4.94"
     },
     "scripts": {
-        "style": "@php vendor/bin/pretty-php ."
+        "style:fix": "@php vendor/bin/pretty-php ."
     }
 }

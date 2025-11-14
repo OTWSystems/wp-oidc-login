@@ -2,6 +2,7 @@
 
 namespace OTWSystems\WpOidcLogin\Actions;
 
+use Jumbojett\OpenIDConnectClient;
 use OTWSystems\WpOidcLogin\{Hooks, Plugin};
 
 use function constant;
@@ -66,6 +67,11 @@ abstract class Base
         }
 
         return $default;
+    }
+
+    final public function getSdk(): OpenIDConnectClient
+    {
+        return $this->plugin->getSdk();
     }
 
     final public function isPluginEnabled(): bool

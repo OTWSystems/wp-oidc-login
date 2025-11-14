@@ -1,0 +1,102 @@
+<?php declare(strict_types=1);
+
+namespace OTWSystems\WpOidcLogin\Actions;
+
+final class Authentication extends Base
+{
+    /**
+     * @var array<string, array<int, int|string>|string>
+     */
+    protected array $registry = [
+        'login_form_login' => 'onLogin',
+    ];
+
+    public function onLogin(): void
+    {
+        if (!$this->getPlugin()->isEnabled()) {
+            return;
+        }
+
+        if (!$this->getPlugin()->isReady()) {
+            return;
+        }
+
+        // Don't allow caching of this route
+        nocache_headers();
+
+        // TODO remove insecure and move scopes to the plugin config
+        $this->getSdk()->setHttpUpgradeInsecureRequests(false);
+        $this->getSdk()->addScope(['email', 'profile', 'groups']);
+        if (!$this->getSdk()->authenticate()) {
+            // TODO: show an error
+            wp_redirect('/');
+            exit;
+        }
+
+        $userDetails = $this->getSdk()->requestUserInfo();
+        $userName = $userDetails->name;
+        $email = $userDetails->email;
+        $userGroups = $userDetails->groups;
+        if (null === $userName || null === $email || null === $userGroups) {
+            // TODO: show an error
+            wp_redirect('/');
+            exit;
+        }
+
+        $wpUser = $this->resolveIdentity($email, $userName, $userGroups);
+        if (is_a($wpUser, WP_User)) {
+            wp_set_current_user($wpUser->ID);
+            wp_set_auth_cookie($wpUser->ID, true);
+            do_action('wp_login', $wpUser->user_login, $wpUser);
+            wp_redirect('/');
+            exit;
+        }
+
+        wp_redirect('/');
+        exit;
+    }
+
+    private function resolveIdentity(string $email, string $username, array $userGroups): ?\WP_User
+    {
+        $email = sanitize_email(filter_var($email ?? '', FILTER_SANITIZE_EMAIL));
+        $user = get_user_by('email', $email);
+
+        if (is_bool($user)) {
+            // User not found, create one
+            $user = wp_create_user($username, wp_generate_password(random_int(12, 123), true, true), $email);
+            if (!$user instanceof WP_Error) {
+                $user = get_user_by('ID', $user);
+            }
+        }
+
+        if (is_a($user, 'WP_User')) {
+            $role = $this->getRole($userGroups);
+            if (is_string($role)) {
+                $user->set_role($role);
+                wp_update_user($user);
+            }
+
+            return $user;
+        }
+
+        return null;
+    }
+
+    private function getRole(array $userGroups): ?string
+    {
+        $roleMappings = get_option('wp_oidc_login_' . 'accounts', []);
+        $roleToGroups = [];
+
+        foreach ($roleMappings as $mappingKey => $groups) {
+            $roleId = str_replace('mapping_', '', $mappingKey);
+            $roleToGroups[$roleId] = explode("\n", $groups);
+        }
+
+        foreach ($roleToGroups as $roleId => $groups) {
+            if (count(array_intersect($groups, $userGroups))) {
+                return $roleId;
+            }
+        }
+        return null;
+    }
+}

@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Jumbojett\OpenIDConnectClient;
 use OTWSystems\WpOidcLogin\Plugin;
 
 define('WP_OIDC_LOGIN_VERSION', '1.0.0');
@@ -37,11 +38,11 @@ wpOidcLogin()->run();
  *
  * @param null|Plugin $plugin Optional. An existing instance of OTWsystems\WpOidcLogin\Plugin to use.
  */
-function wpOidcLogin(?Plugin $plugin = null): Plugin
+function wpOidcLogin(?Plugin $plugin = null, ?OpenIDConnectClient $sdk = null): Plugin
 {
     static $instance = null;
 
-    $instance ??= $instance ?? $plugin ?? new Plugin();
+    $instance ??= $instance ?? $plugin ?? new Plugin($sdk);
 
     return $instance;
 }

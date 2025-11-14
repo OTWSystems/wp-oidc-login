@@ -2,14 +2,15 @@
 
 namespace OTWSystems\WpOidcLogin;
 
-use OTWSystems\WpOidcLogin\Actions\{Configuration as ConfigurationActions};
+use Jumbojett\OpenIDConnectClient;
+use OTWSystems\WpOidcLogin\Actions\{Authentication as AuthenticationActions, Configuration as ConfigurationActions};
 
 final class Plugin
 {
     /**
      * @var array<class-string<Actions>>
      */
-    private const ACTIONS = [ConfigurationActions::class];
+    private const ACTIONS = [AuthenticationActions::class, ConfigurationActions::class];
 
     /**
      * @var array<class-string<Filters>>
@@ -21,7 +22,9 @@ final class Plugin
      */
     private array $registry = [];
 
-    public function __construct() {}
+    public function __construct(
+        private ?OpenIDConnectClient $sdk
+    ) {}
 
     /**
      * Returns a singleton instance of Hooks configured for working with actions.
@@ -47,6 +50,51 @@ final class Plugin
     }
 
     /**
+     * @psalm-param 0|null $default
+     *
+     * @param string $group
+     * @param string $key
+     * @param ?int   $default
+     * @param string $prefix
+     */
+    public function getOption(string $group, string $key, ?int $default = null, string $prefix = 'wp_oidc_login_'): mixed
+    {
+        $options = get_option($prefix . $group, []);
+
+        if (is_array($options) && isset($options[$key])) {
+            return $options[$key];
+        }
+
+        return $default;
+    }
+
+    public function getOptionString(string $group, string $key, string $prefix = 'wp_oidc_login_'): ?string
+    {
+        $result = $this->getOption($group, $key, null, $prefix);
+
+        if (is_string($result)) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a singleton instance of the OIDC client SDK.
+     */
+    public function getSdk(): OpenIDConnectClient
+    {
+        if (null === $this->sdk) {
+            $endpoint = $this->getOptionString('client', 'endpoint');
+            $clientId = $this->getOptionString('client', 'id');
+            $clientSecret = $this->getOptionString('client', 'secret');
+            $this->sdk = new OpenIDConnectClient($endpoint, $clientId, $clientSecret);
+        }
+
+        return $this->sdk;
+    }
+
+    /**
      * Returns true if the plugin has been enabled.
      */
     public function isEnabled(): bool
@@ -59,7 +107,9 @@ final class Plugin
      */
     public function isReady(): bool
     {
-        return true;
+        return null !== $this->getOptionString('client', 'endpoint') &&
+            null !== $this->getOptionString('client', 'id') &&
+            null !== $this->getOptionString('client', 'secret');
     }
 
     /**
