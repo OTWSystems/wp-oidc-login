@@ -49,9 +49,32 @@ final class Configuration extends Base
                 ]
             ],
             'accounts' => [
-                'title' => 'WordPress Users Management',
+                'title' => 'WordPress Roles Mapping',
                 'description' => '',
                 'options' => []
+            ],
+            'client' => [
+                'title' => 'OIDC Client Settings',
+                'description' => '',
+                'options' => [
+                    'endpoint' => [
+                        'title' => 'OICD Endpoint',
+                        'type' => 'text',
+                        'description' => 'Base OIDC endpoint; this should be the configuration endpoint minus /.well-known/openid-configuration'
+                    ],
+                    'id' => [
+                        'title' => 'Client ID',
+                        'type' => 'text',
+                        'sanitizer' => 'string',
+                        'description' => 'OIDC client ID'
+                    ],
+                    'secret' => [
+                        'title' => 'Client Secret',
+                        'type' => 'password',
+                        'sanitizer' => 'string',
+                        'description' => 'OICD client secret'
+                    ]
+                ]
             ]
         ];
 
@@ -60,8 +83,6 @@ final class Configuration extends Base
             $sections['accounts']['options']["mapping_$roleId"] = [
                 'title' => "$roleName Mapping",
                 'type' => 'textarea',
-                'enabled' => 'isPluginReady',
-                'sanitizer' => 'string',
                 'description' => ['getOptionDescription', "{$roleId} mapping"]
             ];
         }
@@ -144,7 +165,7 @@ final class Configuration extends Base
                 }
 
                 if (null !== $optionValue && str_contains($optionId, 'mapping')) {
-                    $optionValue = implode("\n", explode(' ', $optionValue));
+                    $optionValue = implode("\n", explode("\n", $optionValue));
                 }
 
                 /**
@@ -201,11 +222,31 @@ final class Configuration extends Base
 
         $sanitized = [];
 
-        foreach ($this->getRoleOptions() as $roleId => $roleName) {
+        foreach ($this->getRoleOptions() as $roleId => $_) {
             $mappings = Sanitize::textarea((string) ($input["mapping_$roleId"] ?? '')) ?? '';
             $mappings = explode("\n", $mappings);
-            $sanitized["mapping_$roleId"] = trim(implode(' ', Sanitize::arrayUnique($mappings)));
+            $sanitized["mapping_$roleId"] = trim(implode("\n", Sanitize::arrayUnique($mappings)));
         }
+
+        return array_filter($sanitized, static fn($value): bool => '' !== $value);
+    }
+
+    /**
+     * @param null|array<null|bool|int|string> $input
+     *
+     * @return null|array<mixed>
+     */
+    public function onUpdateClient(?array $input): ?array
+    {
+        if (null === $input) {
+            return null;
+        }
+
+        $sanitized = [
+            'endpoint' => Sanitize::url((string) ($input['endpoint']) ?? '') ?? '',
+            'id' => Sanitize::string((string) ($input['id']) ?? '') ?? '',
+            'secret' => Sanitize::string((string) ($input['secret']) ?? '') ?? ''
+        ];
 
         return array_filter($sanitized, static fn($value): bool => '' !== $value);
     }
@@ -256,11 +297,10 @@ final class Configuration extends Base
 
     private function getOptionDescription(string $context): string
     {
-        if (!$this->isPluginReady()) {
-            return 'Plugin requires configuration.';
-        }
-
         if ('enable' === $context) {
+            if (!$this->isPluginReady()) {
+                return 'Plugin requires configuration.';
+            }
             return 'Manage WordPress authentication with OIDC.';
         }
 
@@ -269,6 +309,8 @@ final class Configuration extends Base
             $roleId = str_replace($context, ' mapping', '');
             return "A list of groups to map to the $roleId role, each on its own line.";
         }
+
+        return 'Unknown option';
     }
 
     /**
