@@ -22,7 +22,7 @@ abstract class Base
         private Plugin $plugin
     ) {}
 
-    final public function addAction(string $event, $method = null): ?Hooks
+    final public function addAction(string $event, mixed $method = null): ?Hooks
     {
         $callback = null;
         $method ??= $this->registry[$event] ?? null;
@@ -97,11 +97,10 @@ abstract class Base
         return $this;
     }
 
-    final public function removeAction(string $event, $method = null): ?Hooks
+    final public function removeAction(string $event, mixed $method = null): ?Hooks
     {
         $callback = null;
         $method ??= $this->registry[$event] ?? null;
-        $arguments = 1;
 
         if (null !== $method) {
             if (is_string($method)) {
@@ -110,14 +109,13 @@ abstract class Base
 
             if (is_array($method) && count($method) >= 1 && is_string($method[0]) && is_numeric($method[1])) {
                 $callback = $method[0];
-                $arguments = (int) $method[1];
             }
 
             if (null !== $callback) {
                 return $this
                     ->plugin
                     ->actions()
-                    ->remove($event, $this, $callback, $this->getPriority($event), $arguments);
+                    ->remove($event, $this, $callback, $this->getPriority($event));
             }
         }
 

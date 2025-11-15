@@ -6,8 +6,6 @@ services:
       MARIADB_USER: wordpress
       MARIADB_PASSWORD: wordpress
       MARIADB_RANDOM_ROOT_PASSWORD: 1
-    volumes:
-      - mariadb-data:/var/lib/mysql
 
   wordpress:
     image: wordpress:6.8.3

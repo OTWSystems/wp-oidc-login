@@ -58,7 +58,7 @@ final class Render
 
         if (null !== $select && count($select) >= 1) {
             if (true === $disabled) {
-                echo '<input type="hidden" name="' . $name . '" value="' . ($value ?? '') . '">';
+                echo '<input type="hidden" name="' . $name . '" value="' . strval($value) . '">';
                 echo '<select id="' . $element . '"' . $disabledString . '>';
             } else {
                 echo '<select name="' . $name . '" id="' . $element . '"' . $disabledString . '>';
@@ -71,7 +71,7 @@ final class Render
                     $selected = ' selected';
                 }
 
-                echo '<option value="' . $optVal . '"' . $selected . '>' . $optText . '</option>';
+                echo '<option value="' . $optVal . '"' . $selected . '>' . strval($optText) . '</option>';
             }
 
             echo '</select>';
@@ -84,7 +84,7 @@ final class Render
         }
 
         if (in_array($type, self::TREAT_AS_TEXT, true)) {
-            echo '<input name="' . $name . '" type="' . $type . '" id="' . $element . '" value="' . ($value ?? '') . '" class="regular-text"' . $placeholder . $disabledString . ' />';
+            echo '<input name="' . $name . '" type="' . $type . '" id="' . $element . '" value="' . strval($value) . '" class="regular-text"' . $placeholder . $disabledString . ' />';
 
             if ('' !== $description) {
                 echo '<p class="description">' . $description . '</p>';
@@ -94,7 +94,7 @@ final class Render
         }
 
         if ('textarea' === $type) {
-            echo '<textarea name="' . $name . '" id="' . $element . '" rows="10" cols="50" spellcheck="false" class="large-text code"' . $placeholder . $disabledString . '>' . ($value ?? '') . '</textarea>';
+            echo '<textarea name="' . $name . '" id="' . $element . '" rows="10" cols="50" spellcheck="false" class="large-text code"' . $placeholder . $disabledString . '>' . strval($value) . '</textarea>';
 
             if ('' !== $description) {
                 echo '<p class="description">' . $description . '</p>';

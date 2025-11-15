@@ -8,14 +8,9 @@ use OTWSystems\WpOidcLogin\Actions\{Authentication as AuthenticationActions, Con
 final class Plugin
 {
     /**
-     * @var array<class-string<Actions>>
+     * @var array<class-string<Actions\Base>>
      */
     private const ACTIONS = [AuthenticationActions::class, ConfigurationActions::class];
-
-    /**
-     * @var array<class-string<Filters>>
-     */
-    private const FILTERS = [];
 
     /**
      * @var mixed[]
@@ -117,13 +112,6 @@ final class Plugin
      */
     public function run(): self
     {
-        foreach (self::FILTERS as $filter) {
-            $callback = [$this->getClassInstance($filter), 'register'];
-
-            /** @var callable $callback */
-            $callback();
-        }
-
         foreach (self::ACTIONS as $action) {
             $callback = [$this->getClassInstance($action), 'register'];
 

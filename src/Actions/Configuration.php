@@ -78,7 +78,6 @@ final class Configuration extends Base
             ]
         ];
 
-        /** @var array<string> */
         foreach ($this->getRoleOptions() as $roleId => $roleName) {
             $sections['accounts']['options']["mapping_$roleId"] = [
                 'title' => "$roleName Mapping",
@@ -201,8 +200,7 @@ final class Configuration extends Base
                     page: self::CONST_PAGE_GENERAL,
                     section: $sectionId,
                     args: [
-                        'label_for' => $elementId,
-                        'description' => $option['description'] ?? '',
+                        'label_for' => $elementId
                     ],
                 );
             }
@@ -243,9 +241,9 @@ final class Configuration extends Base
         }
 
         $sanitized = [
-            'endpoint' => Sanitize::url((string) ($input['endpoint']) ?? '') ?? '',
-            'id' => Sanitize::string((string) ($input['id']) ?? '') ?? '',
-            'secret' => Sanitize::string((string) ($input['secret']) ?? '') ?? ''
+            'endpoint' => Sanitize::url((string) $input['endpoint']) ?? '',
+            'id' => Sanitize::string((string) $input['id']) ?? '',
+            'secret' => Sanitize::string((string) $input['secret']) ?? ''
         ];
 
         return array_filter($sanitized, static fn($value): bool => '' !== $value);
@@ -316,18 +314,18 @@ final class Configuration extends Base
     /**
      * Returns an array of role tags (as strings) identifying all available role options.
      *
-     * @return mixed[]
+     * @return array<string, string>
      */
     private function getRoleOptions(): array
     {
         $roles = get_editable_roles();
         $response = [];
 
+        /** @var string $roleId */
         foreach ($roles as $roleId => $role) {
             $response[$roleId] = (string) $role['name'];
         }
 
-        /** @var string[] $response */
         return $response;
     }
 }

@@ -31,9 +31,14 @@
         "jumbojett/openid-connect-php": "^1.0"
     },
     "require-dev": {
-        "lkrms/pretty-php": "^0.4.94"
+        "lkrms/pretty-php": "^0.4.94",
+        "vimeo/psalm": "^6.13",
+        "szepeviktor/phpstan-wordpress": "^2.0"
     },
     "scripts": {
+        "psalm": "@php vendor/bin/psalm",
+        "psalm:fix": "@php vendor/bin/psalter --issues=all",
+        "style": "@php vendor/bin/pretty-php --check .",
         "style:fix": "@php vendor/bin/pretty-php ."
     }
 }

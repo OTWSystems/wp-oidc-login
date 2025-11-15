@@ -39,17 +39,17 @@ final class Hooks
         return $this;
     }
 
-    public function remove(string $hook, object $class, string $method, int $priority = 10, int $arguments = 1): self
+    public function remove(string $hook, object $class, string $method, int $priority = 10): self
     {
         $callback = [$class, $method];
 
         /** @var callable $callback */
         if (self::CONST_ACTION_HOOK === $this->hookType) {
-            remove_action($hook, $callback, $priority, $arguments);
+            remove_action($hook, $callback, $priority);
         }
 
         if (self::CONST_ACTION_FILTER === $this->hookType) {
-            remove_filter($hook, $callback, $priority, $arguments);
+            remove_filter($hook, $callback, $priority);
         }
 
         return $this;

@@ -33,6 +33,13 @@ final class Authentication extends Base
             exit;
         }
 
+        /**
+         * @var object{
+         *  name: ?string,
+         *  email: ?string,
+         *  groups: ?array<string>
+         * }
+         */
         $userDetails = $this->getSdk()->requestUserInfo();
         $userName = $userDetails->name;
         $email = $userDetails->email;
@@ -43,7 +50,7 @@ final class Authentication extends Base
         }
 
         $wpUser = $this->resolveIdentity($email, $userName, $userGroups);
-        if (is_a($wpUser, 'WP_User')) {
+        if ($wpUser instanceof \WP_User) {
             wp_set_current_user($wpUser->ID);
             wp_set_auth_cookie($wpUser->ID, true);
             do_action('wp_login', $wpUser->user_login, $wpUser);
@@ -64,18 +71,18 @@ final class Authentication extends Base
 
     private function resolveIdentity(string $email, string $username, array $userGroups): ?\WP_User
     {
-        $email = sanitize_email(filter_var($email ?? '', FILTER_SANITIZE_EMAIL));
+        $email = sanitize_email(filter_var($email, FILTER_SANITIZE_EMAIL));
         $user = get_user_by('email', $email);
 
         if (is_bool($user)) {
             // User not found, create one
             $user = wp_create_user($username, wp_generate_password(random_int(12, 123), true, true), $email);
-            if (!$user instanceof WP_Error) {
+            if (!$user instanceof \WP_Error) {
                 $user = get_user_by('ID', $user);
             }
         }
 
-        if (is_a($user, 'WP_User')) {
+        if ($user instanceof \WP_User) {
             $role = $this->getRole($userGroups);
             if (is_string($role)) {
                 $user->set_role($role);
@@ -90,7 +97,8 @@ final class Authentication extends Base
 
     private function getRole(array $userGroups): ?string
     {
-        $roleMappings = get_option('wp_oidc_login_' . 'accounts', []);
+        /** @var array<string, string> */
+        $roleMappings = get_option('wp_oidc_login_accounts', []);
         $roleToGroups = [];
 
         foreach ($roleMappings as $mappingKey => $groups) {
@@ -99,7 +107,7 @@ final class Authentication extends Base
         }
 
         foreach ($roleToGroups as $roleId => $groups) {
-            if (count(array_intersect($groups, $userGroups))) {
+            if (count(array_intersect($groups, $userGroups)) > 0) {
                 return $roleId;
             }
         }
