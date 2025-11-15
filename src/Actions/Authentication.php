@@ -9,6 +9,7 @@ final class Authentication extends Base
      */
     protected array $registry = [
         'login_form_login' => 'onLogin',
+        'login_form_logout' => 'onLogout'
     ];
 
     public function onLogin(): void
@@ -28,7 +29,6 @@ final class Authentication extends Base
         $this->getSdk()->setHttpUpgradeInsecureRequests(false);
         $this->getSdk()->addScope(['email', 'profile', 'groups']);
         if (!$this->getSdk()->authenticate()) {
-            // TODO: show an error
             wp_redirect('/');
             exit;
         }
@@ -38,13 +38,12 @@ final class Authentication extends Base
         $email = $userDetails->email;
         $userGroups = $userDetails->groups;
         if (null === $userName || null === $email || null === $userGroups) {
-            // TODO: show an error
             wp_redirect('/');
             exit;
         }
 
         $wpUser = $this->resolveIdentity($email, $userName, $userGroups);
-        if (is_a($wpUser, WP_User)) {
+        if (is_a($wpUser, 'WP_User')) {
             wp_set_current_user($wpUser->ID);
             wp_set_auth_cookie($wpUser->ID, true);
             do_action('wp_login', $wpUser->user_login, $wpUser);
@@ -52,6 +51,13 @@ final class Authentication extends Base
             exit;
         }
 
+        wp_redirect('/');
+        exit;
+    }
+
+    public function onLogout(): never
+    {
+        wp_logout();
         wp_redirect('/');
         exit;
     }
