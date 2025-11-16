@@ -25,9 +25,6 @@ final class Authentication extends Base
         // Don't allow caching of this route
         nocache_headers();
 
-        // TODO remove insecure and move scopes to the plugin config
-        $this->getSdk()->setHttpUpgradeInsecureRequests(false);
-        $this->getSdk()->addScope(['email', 'profile', 'groups']);
         if (!$this->getSdk()->authenticate()) {
             wp_redirect('/');
             exit;

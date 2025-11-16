@@ -84,6 +84,7 @@ final class Plugin
             $clientId = $this->getOptionString('client', 'id');
             $clientSecret = $this->getOptionString('client', 'secret');
             $this->sdk = new OpenIDConnectClient($endpoint, $clientId, $clientSecret);
+            $this->sdk->addScope(['email', 'profile', 'groups']);
         }
 
         return $this->sdk;
