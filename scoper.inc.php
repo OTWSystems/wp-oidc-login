@@ -27,6 +27,11 @@ return [
         ]),
     ],
 
+    'exclude-constants' => [
+        'ABSPATH',
+        'WP_OIDC_LOGIN_VERSION',
+    ],
+
     'exclude-namespaces' => [
         '/^OTWSystems\\\\WpOidcLogin\\\\/',
         '/^OTWSystems\\\\WpOidcLogin/',

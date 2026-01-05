@@ -36,8 +36,8 @@ filename="WP_OIDC_Login_${version}.zip"
 
 echo "# Cleaning up environment..."
 rm -f build.zip
-rm -f build.zip.sig
 rm -rf build
+rm -rf wp-oidc-login/
 rm -rf vendor
 rm -f composer.lock
 
@@ -55,4 +55,5 @@ rm -f composer.lock
 cd ..
 
 echo "# Archiving Build..."
-zip -vr ${filename} build/ -x "*.DS_Store"
+mv build/ wp-oidc-login/
+zip -vr ${filename} wp-oidc-login/ -x "*.DS_Store"
