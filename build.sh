@@ -35,6 +35,7 @@ semver "$version" version
 filename="WP_OIDC_Login_${version}.zip"
 
 echo "# Cleaning up environment..."
+rm -rf $filename
 rm -f build.zip
 rm -rf build
 rm -rf wp-oidc-login/

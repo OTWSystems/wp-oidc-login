@@ -28,7 +28,8 @@
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
-        "jumbojett/openid-connect-php": "^1.0"
+        "jumbojett/openid-connect-php": "^1.0",
+        "phpseclib/bcmath_compat": "^2.0"
     },
     "require-dev": {
         "lkrms/pretty-php": "^0.4.94",
