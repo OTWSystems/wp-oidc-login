@@ -120,3 +120,10 @@ fabric.properties
 /build/
 
 # End of https://www.toptal.com/developers/gitignore/api/composer,phpcodesniffer,phpstorm+all,phpunit
+
+# Build files
+WP_OIDC_Login_*.zip
+wp-oidc-login/
+
+# Potential secrets
+.env
