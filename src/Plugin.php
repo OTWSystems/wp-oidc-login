@@ -84,7 +84,8 @@ final class Plugin
             $clientId = $this->getOptionString('client', 'id');
             $clientSecret = $this->getOptionString('client', 'secret');
             $this->sdk = new OpenIDConnectClient($endpoint, $clientId, $clientSecret);
-            $this->sdk->setHttpUpgradeInsecureRequests(false);
+            // Uncomment for local testing
+            // $this->sdk->setHttpUpgradeInsecureRequests(false);
             $this->sdk->addScope(['email', 'profile', 'groups']);
         }
 
