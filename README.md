@@ -7,10 +7,6 @@ It is inspired/based upon the [Auth0 Wordpress Plugin](https://github.com/auth0/
 
 ## Caveats
 
-If enabled, SSO login via the OIDC provider is the _only_ supported
-login mechanism: the default WP login screen is replaced. As a break 
-glass fallback, try disabling the plugin via the database console.
-
 There may be other sharp edges with this plugin; it is "good enough"
 for our purposes right now, but we are happy to accept contributions
 to fix bugs you come accross (as well as some enhancements at our
@@ -34,6 +30,13 @@ with each one on its own line
 service documentation they have)
 4. Click "Save Changes"
 5. Select "Enable" at the top of the page and click "Save Changes" again
+
+## Overriding SSO
+
+There is an "Override Token" option in the plugin configuration. If set, you can use it to
+fall back to the default WordPress login form. This is done by going to
+`/wp-login.php?overrideToken=<value_in_config>`. This should be treated as a shared secret.
+If this option is not set, it is not possible to override SSO.
 
 ## Development
 

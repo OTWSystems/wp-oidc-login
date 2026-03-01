@@ -45,13 +45,13 @@ final class Configuration extends Base
                             'false' => 'Disabled',
                             'true' => 'Enabled',
                         ]
+                    ],
+                    'override_token' => [
+                        'title' => 'Override Token',
+                        'type' => 'password',
+                        'description' => 'Shared key used to get the default login page via /wp-login.php?overrideToken=...',
                     ]
                 ]
-            ],
-            'accounts' => [
-                'title' => 'WordPress Roles Mapping',
-                'description' => '',
-                'options' => []
             ],
             'client' => [
                 'title' => 'OIDC Client Settings',
@@ -75,6 +75,11 @@ final class Configuration extends Base
                         'description' => 'OICD client secret'
                     ]
                 ]
+            ],
+            'accounts' => [
+                'title' => 'WordPress Roles Mapping',
+                'description' => '',
+                'options' => []
             ]
         ];
 
@@ -262,6 +267,7 @@ final class Configuration extends Base
 
         $sanitized = [
             'enable' => Sanitize::boolean((string) ($input['enable'] ?? '')) ?? '',
+            'override_token' => Sanitize::string((string) $input['override_token']) ?? '',
         ];
 
         return array_filter($sanitized, static fn($value): bool => '' !== $value);

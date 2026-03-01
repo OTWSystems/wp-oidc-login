@@ -14,12 +14,23 @@ final class Authentication extends Base
 
     public function onLogin(): void
     {
-        if (!$this->getPlugin()->isEnabled()) {
+        if (!$this->getPlugin()->isEnabled() || !$this->getPlugin()->isReady()) {
             return;
         }
 
-        if (!$this->getPlugin()->isReady()) {
+        // There is a normal WordPress login going on; this happens when someone
+        // does an override to get to the WordPress-builtin login screen.
+        if (isset($_POST['log'])) {
             return;
+        }
+
+        // Allow sysadmins with the override token to get to the built-in WordPress
+        // login form.
+        $overrideToken = $this->getPlugin()->getOverrideToken();
+        if ($overrideToken && isset($_GET['overrideToken'])) {
+            if ($overrideToken === sanitize_text_field($_GET['overrideToken'])) {
+                return;
+            }
         }
 
         // Don't allow caching of this route

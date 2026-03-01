@@ -111,6 +111,14 @@ final class Plugin
     }
 
     /**
+     * Returns the override token to allow bypassing SSO.
+     */
+    public function getOverrideToken(): ?string
+    {
+        return $this->getOptionString('state', 'override_token');
+    }
+
+    /**
      * Main plugin functionality.
      */
     public function run(): self
