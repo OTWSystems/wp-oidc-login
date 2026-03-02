@@ -80,19 +80,24 @@ final class Authentication extends Base
         }
 
         if ($user instanceof \WP_User) {
-            $role = $this->getRole($userGroups);
-            if (is_string($role)) {
-                $user->set_role($role);
-                wp_update_user($user);
+            $currentRoles = (array) $user->roles;
+            $desiredRoles = $this->getRoles($userGroups);
+            foreach ($currentRoles as $currentRole) {
+                if (!in_array($currentRole, $desiredRoles)) {
+                    $user->remove_role($currentRole);
+                }
             }
-
+            foreach ($desiredRoles as $desiredRole) {
+                $user->add_role($desiredRole);
+            }
+            wp_update_user($user);
             return $user;
         }
 
         return null;
     }
 
-    private function getRole(array $userGroups): ?string
+    private function getRoles(array $userGroups): array
     {
         /** @var array<string, string> */
         $roleMappings = get_option('wp_oidc_login_accounts', []);
@@ -103,11 +108,13 @@ final class Authentication extends Base
             $roleToGroups[$roleId] = explode("\n", $groups);
         }
 
+        /** @var array<string> */
+        $matchingRoles = [];
         foreach ($roleToGroups as $roleId => $groups) {
             if (count(array_intersect($groups, $userGroups)) > 0) {
-                return $roleId;
+                $matchingRoles[] = $roleId;
             }
         }
-        return null;
+        return $matchingRoles;
     }
 }
