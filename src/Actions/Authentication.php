@@ -26,7 +26,7 @@ final class Authentication extends Base
         nocache_headers();
 
         if (!$this->getSdk()->authenticate()) {
-            wp_redirect('/');
+            wp_safe_redirect('/');
             exit;
         }
 
@@ -42,7 +42,7 @@ final class Authentication extends Base
         $email = $userDetails->email;
         $userGroups = $userDetails->groups;
         if (null === $userName || null === $email || null === $userGroups) {
-            wp_redirect('/');
+            wp_safe_redirect('/');
             exit;
         }
 
@@ -51,18 +51,18 @@ final class Authentication extends Base
             wp_set_current_user($wpUser->ID);
             wp_set_auth_cookie($wpUser->ID, true);
             do_action('wp_login', $wpUser->user_login, $wpUser);
-            wp_redirect('/');
+            wp_safe_redirect('/');
             exit;
         }
 
-        wp_redirect('/');
+        wp_safe_redirect('/');
         exit;
     }
 
     public function onLogout(): never
     {
         wp_logout();
-        wp_redirect('/');
+        wp_safe_redirect('/');
         exit;
     }
 
