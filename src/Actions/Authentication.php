@@ -26,7 +26,7 @@ final class Authentication extends Base
         nocache_headers();
 
         if (!$this->getSdk()->authenticate()) {
-            wp_redirect('/');
+            wp_safe_redirect('/');
             exit;
         }
 
@@ -42,7 +42,7 @@ final class Authentication extends Base
         $email = $userDetails->email;
         $userGroups = $userDetails->groups;
         if (null === $userName || null === $email || null === $userGroups) {
-            wp_redirect('/');
+            wp_safe_redirect('/');
             exit;
         }
 
@@ -51,18 +51,18 @@ final class Authentication extends Base
             wp_set_current_user($wpUser->ID);
             wp_set_auth_cookie($wpUser->ID, true);
             do_action('wp_login', $wpUser->user_login, $wpUser);
-            wp_redirect('/');
+            wp_safe_redirect('/');
             exit;
         }
 
-        wp_redirect('/');
+        wp_safe_redirect('/');
         exit;
     }
 
     public function onLogout(): never
     {
         wp_logout();
-        wp_redirect('/');
+        wp_safe_redirect('/');
         exit;
     }
 
@@ -70,9 +70,16 @@ final class Authentication extends Base
     {
         $email = sanitize_email(filter_var($email, FILTER_SANITIZE_EMAIL));
         $user = get_user_by('email', $email);
+        $desiredRoles = $this->getRoles($userGroups);
 
+        // User not registered yet
         if (is_bool($user)) {
-            // User not found, create one
+            // If the user would not be granted any roles, return an error instead of registering.
+            if (empty($desiredRoles)) {
+                wp_safe_redirect('/');
+                exit;
+            }
+
             $user = wp_create_user($username, wp_generate_password(random_int(12, 123), true, true), $email);
             if (!$user instanceof \WP_Error) {
                 $user = get_user_by('ID', $user);
@@ -80,8 +87,9 @@ final class Authentication extends Base
         }
 
         if ($user instanceof \WP_User) {
+            // Ensure the user's applied roles match the desired roles
             $currentRoles = (array) $user->roles;
-            $desiredRoles = $this->getRoles($userGroups);
+
             foreach ($currentRoles as $currentRole) {
                 if (!in_array($currentRole, $desiredRoles)) {
                     $user->remove_role($currentRole);
@@ -91,6 +99,13 @@ final class Authentication extends Base
                 $user->add_role($desiredRole);
             }
             wp_update_user($user);
+
+            // The existing user had all roles removed, so don't log them in (similar behavior to above).
+            if (empty($desiredRoles)) {
+                wp_safe_redirect('/');
+                exit;
+            }
+
             return $user;
         }
 
