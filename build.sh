@@ -40,7 +40,6 @@ rm -f build.zip
 rm -rf build
 rm -rf wp-oidc-login/
 rm -rf vendor
-rm -f composer.lock
 
 echo "# Executing Composer..."
 composer update --no-plugins
@@ -49,7 +48,7 @@ echo "# Prefixing Dependencies..."
 vendor/bin/php-scoper add-prefix --force
 
 echo "# Finalizing Build..."
-cd build
+cd build && rm -rf vendor
 composer update --no-dev --optimize-autoloader --no-plugins
 rm -f composer.json
 rm -f composer.lock
