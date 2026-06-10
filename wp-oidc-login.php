@@ -4,7 +4,7 @@
  * Plugin Name:       WP OIDC Login
  * Plugin URI:        https://github.com/OTWSystems/wp-oidc-login
  * Description:       SSO via OIDC with optional permission mapping
- * Version:           1.1.0
+ * Version:           1.2.0
  * Requires at least: 6.8
  * Requires PHP:      8.2
  * Author:            OTW Systems
