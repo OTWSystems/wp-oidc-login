@@ -30,7 +30,7 @@
         "php": "^8.2",
         "jumbojett/openid-connect-php": "^1.0",
         "phpseclib/bcmath_compat": "^2.0",
-        "sniccowp/php-scoper-wordpress-excludes": "^6.9"
+        "sniccowp/php-scoper-wordpress-excludes": "^7.1"
     },
     "require-dev": {
         "lkrms/pretty-php": "^0.4.94",
